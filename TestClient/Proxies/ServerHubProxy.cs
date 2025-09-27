@@ -60,11 +60,11 @@ namespace TestClient.Proxies
             }
         }
 
-        public async Task DisconnectAsync()
+        public void Disconnect()
         {
             if (_connection != null)
             {
-                await _connection.Stop();
+                _connection.Stop();
                 _connection.Dispose();
                 _connection = null;
             }

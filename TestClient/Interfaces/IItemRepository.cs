@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace TestClient.Interfaces
 {
-    internal interface ILocalItemRepository
+    internal interface IItemRepository
     {
         Task<IEnumerable<Item>> GetAllAsync();
         Task<Item> GetByIdAsync(int id);

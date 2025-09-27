@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using TestClient.Interfaces;
 
@@ -7,7 +8,7 @@ namespace TestClient
     internal class Program
     {
         private static ISyncManager _syncManager;
-        private static ILocalItemRepository _localRepository;
+        private static IItemRepository _localRepository;
         private static IOutboxRepository _outboxRepository;
         private static IServerProxy _serverProxy;
         private static Startup _startup;
@@ -23,7 +24,7 @@ namespace TestClient
                 _startup.ConfigureServices();
 
                 // Получаем сервисы
-                _localRepository = _startup.GetService<ILocalItemRepository>();
+                _localRepository = _startup.GetService<IItemRepository>();
                 _outboxRepository = _startup.GetService<IOutboxRepository>();
                 _serverProxy = _startup.GetService<IServerProxy>();
                 _syncManager = _startup.GetService<ISyncManager>();
@@ -63,7 +64,7 @@ namespace TestClient
                             break;
                         case 'q':
                         case 'Q':
-                            await _syncManager.StopAsync();
+                            _syncManager.Stop();
                             return;
                     }
                 }
@@ -75,7 +76,7 @@ namespace TestClient
             }
             finally
             {
-                _syncManager?.StopAsync().Wait();
+                _syncManager?.Stop();
                 Console.WriteLine("Клиент остановлен");
             }
         }

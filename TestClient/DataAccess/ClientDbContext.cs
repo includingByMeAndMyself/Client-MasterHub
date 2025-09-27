@@ -2,12 +2,13 @@ using System;
 using System.Data.Common;
 using System.Data.Entity;
 using Common.Models;
+using TestClient.Extensions;
 
 namespace TestClient.DataAccess
 {
     public class ClientDbContext : DbContext
     {
-        public ClientDbContext() : base("LocalConnection")
+        public ClientDbContext() : base("DefaultConnection")
         {
             Database.SetInitializer(new CreateDatabaseIfNotExists<ClientDbContext>());
         }

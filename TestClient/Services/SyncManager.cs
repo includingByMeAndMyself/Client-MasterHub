@@ -12,7 +12,7 @@ namespace TestClient.Services
 {
     internal class SyncManager : ISyncManager
     {
-        private readonly ILocalItemRepository _localRepository;
+        private readonly IItemRepository _localRepository;
         private readonly IOutboxRepository _outboxRepository;
         private readonly IServerProxy _serverProxy;
         private readonly IConflictResolutionStrategy _conflictStrategy;
@@ -25,7 +25,7 @@ namespace TestClient.Services
         public bool IsRunning => _isRunning;
 
         public SyncManager(
-            ILocalItemRepository localRepository,
+            IItemRepository localRepository,
             IOutboxRepository outboxRepository,
             IServerProxy serverProxy,
             IConflictResolutionStrategy conflictStrategy)
@@ -63,7 +63,7 @@ namespace TestClient.Services
             _reconnectTimer.Change(_reconnectInterval, _reconnectInterval);
         }
 
-        public async Task StopAsync()
+        public void Stop()
         {
             if (!_isRunning) return;
 
@@ -73,7 +73,7 @@ namespace TestClient.Services
             _syncTimer.Change(Timeout.Infinite, Timeout.Infinite);
             _reconnectTimer.Change(Timeout.Infinite, Timeout.Infinite);
 
-            await _serverProxy.DisconnectAsync();
+            _serverProxy.Disconnect();
         }
 
         public async Task SyncWithServerAsync()

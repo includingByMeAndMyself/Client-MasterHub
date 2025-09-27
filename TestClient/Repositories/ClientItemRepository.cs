@@ -9,11 +9,11 @@ using TestClient.Interfaces;
 
 namespace TestClient.Repositories
 {
-    internal class LocalItemRepository : ILocalItemRepository
+    internal class ClientItemRepository : IItemRepository
     {
         private readonly ClientDbContext _context;
 
-        public LocalItemRepository(ClientDbContext context)
+        public ClientItemRepository(ClientDbContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }

@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using TestClient.DataAccess;
 using TestClient.Interfaces;
+using TestClient.Proxies;
 using TestClient.Repositories;
 using TestClient.Services;
 using TestClient.Strategies;
@@ -15,7 +16,7 @@ namespace TestClient.DependencyInjection
             services.AddScoped<ClientDbContext>();
             
             // Регистрируем репозитории
-            services.AddScoped<ILocalItemRepository, LocalItemRepository>();
+            services.AddScoped<IItemRepository, ClientItemRepository>();
             services.AddScoped<IOutboxRepository, OutboxRepository>();
 
             // Регистрируем стратегии

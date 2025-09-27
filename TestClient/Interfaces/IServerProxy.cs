@@ -8,7 +8,7 @@ namespace TestClient.Interfaces
     internal interface IServerProxy
     {
         Task<bool> ConnectAsync();
-        Task DisconnectAsync();
+        void Disconnect();
         Task<List<Item>> GetAllItemsAsync();
         Task PushClientChangesAsync(List<Item> changes);
         bool IsConnected { get; }

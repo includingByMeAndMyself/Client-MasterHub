@@ -6,7 +6,7 @@ namespace TestClient.Interfaces
     internal interface ISyncManager
     {
         Task StartAsync();
-        Task StopAsync();
+        void Stop();
         Task SyncWithServerAsync();
         bool IsRunning { get; }
     }
