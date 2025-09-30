@@ -23,50 +23,90 @@ namespace TestClient.Proxies
         public ServerHubProxy()
         {
             _serverUrl = ConfigurationManager.AppSettings["ServerUrl"];
+            Console.WriteLine($"Настроен URL сервера: {_serverUrl}");
         }
 
         public async Task<bool> ConnectAsync()
         {
             try
             {
+                Console.WriteLine($"Попытка подключения к серверу: {_serverUrl}");
+
+                // В SignalR для ASP.NET клиент подключается к базовому URL сервера
+                // SignalR автоматически найдет Hub по имени
                 _connection = new HubConnection(_serverUrl);
                 _hubProxy = _connection.CreateHubProxy("MasterHub");
 
                 // Подписываемся на события
                 _hubProxy.On<List<Item>>("ReceiveServerUpdate", (items) =>
                 {
+                    Console.WriteLine($"Получено обновление с сервера: {items.Count} элементов");
                     OnServerUpdate?.Invoke(items);
                 });
 
                 _connection.StateChanged += (change) =>
                 {
+                    Console.WriteLine($"Изменение состояния подключения: {change.OldState} -> {change.NewState}");
                     if (change.NewState == ConnectionState.Connected)
                     {
+                        Console.WriteLine("Подключение к серверу установлено");
                         OnConnected?.Invoke();
                     }
                     else if (change.NewState == ConnectionState.Disconnected)
                     {
+                        Console.WriteLine("Соединение с сервером потеряно");
                         OnDisconnected?.Invoke();
                     }
                 };
 
+                // Добавляем обработку ошибок
+                _connection.Error += (error) =>
+                {
+                    Console.WriteLine($"Ошибка SignalR: {error.Message}");
+                };
+
+                Console.WriteLine("Запуск подключения...");
                 await _connection.Start();
+
+                if (IsConnected)
+                {
+                    Console.WriteLine("Успешно подключен к серверу");
+                }
+                else
+                {
+                    Console.WriteLine("Не удалось подключиться к серверу");
+                }
+
                 return IsConnected;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Ошибка подключения к серверу: {ex.Message}");
+                Console.WriteLine($"Тип ошибки: {ex.GetType().Name}");
+                if (ex.InnerException != null)
+                {
+                    Console.WriteLine($"Внутренняя ошибка: {ex.InnerException.Message}");
+                }
                 return false;
             }
         }
 
         public void Disconnect()
         {
-            if (_connection != null)
+            try
             {
-                _connection.Stop();
-                _connection.Dispose();
-                _connection = null;
+                if (_connection != null)
+                {
+                    Console.WriteLine("Отключение от сервера...");
+                    _connection.Stop();
+                    _connection.Dispose();
+                    _connection = null;
+                    Console.WriteLine("Отключение завершено");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка при отключении: {ex.Message}");
             }
         }
 
@@ -74,7 +114,16 @@ namespace TestClient.Proxies
         {
             try
             {
-                return await _hubProxy.Invoke<List<Item>>("GetAllItems");
+                if (!IsConnected)
+                {
+                    Console.WriteLine("Сервер не подключен, невозможно получить данные");
+                    return new List<Item>();
+                }
+
+                Console.WriteLine("Запрос данных с сервера...");
+                var result = await _hubProxy.Invoke<List<Item>>("GetAllItems");
+                Console.WriteLine($"Получено {result.Count} элементов с сервера");
+                return result;
             }
             catch (Exception ex)
             {
@@ -87,7 +136,15 @@ namespace TestClient.Proxies
         {
             try
             {
+                if (!IsConnected)
+                {
+                    Console.WriteLine("Сервер не подключен, невозможно отправить изменения");
+                    return;
+                }
+
+                Console.WriteLine($"Отправка {changes.Count} изменений на сервер...");
                 await _hubProxy.Invoke("PushClientChanges", changes);
+                Console.WriteLine("Изменения успешно отправлены на сервер");
             }
             catch (Exception ex)
             {

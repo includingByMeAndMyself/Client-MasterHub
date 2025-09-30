@@ -23,6 +23,16 @@ namespace TestMaster.Services
             return (await _itemRepository.GetAllAsync()).ToList();
         }
 
+        public async Task<Item> GetItemByIdAsync(int id)
+        {
+            return await _itemRepository.GetByIdAsync(id);
+        }
+
+        public async Task<bool> DeleteItemAsync(int id)
+        {
+            return await _itemRepository.DeleteAsync(id);
+        }
+
         public async Task PushClientChangesAsync(List<Item> clientChanges)
         {
             foreach (var item in clientChanges)
@@ -45,6 +55,21 @@ namespace TestMaster.Services
                 CreatedAt = DateTime.UtcNow,
                 Processed = false
             });
+        }
+
+        public async Task NotifyClientsAsync()
+        {
+            try
+            {
+                // В SignalR для ASP.NET уведомления клиентов происходят через MasterHub
+                // Этот метод будет вызываться из MasterHub
+                var latestData = await GetLatestDataAsync();
+                Console.WriteLine($"Данные для уведомления клиентов подготовлены: {latestData.Count} элементов");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка при подготовке уведомления клиентов: {ex.Message}");
+            }
         }
     }
 }

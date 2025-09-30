@@ -10,15 +10,11 @@ namespace TestMaster.DependencyInjection
     {
         public static void RegisterServices(IServiceCollection services)
         {
-            // Регистрируем DbContext как Scoped
             services.AddScoped<MasterDbContext>();
-            
-            // Регистрируем репозиторий
             services.AddScoped<IItemRepository, MasterItemRepository>();
             services.AddScoped<IOutboxRepository, OutboxRepository>();
-
-            // Регистрируем сервисы
             services.AddScoped<ISyncService, SyncService>();
+            services.AddScoped<IItemManagementService, ItemManagementService>();
         }
     }
 }

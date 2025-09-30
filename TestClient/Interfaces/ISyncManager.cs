@@ -8,6 +8,12 @@ namespace TestClient.Interfaces
         Task StartAsync();
         void Stop();
         Task SyncWithServerAsync();
+        Task ReconnectToServerAsync();
+        void EnableAutoReconnect();
+        void DisableAutoReconnect();
+        void DisableAutoSync();
         bool IsRunning { get; }
+        bool IsConnected { get; }
+        bool IsAutoReconnectEnabled { get; }
     }
 }

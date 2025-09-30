@@ -33,34 +33,54 @@ namespace TestClient
                 await _syncManager.StartAsync();
 
                 Console.WriteLine("Клиент запущен. Доступные команды:");
-                Console.WriteLine("1 - Показать все элементы");
-                Console.WriteLine("2 - Добавить элемент");
-                Console.WriteLine("3 - Обновить элемент");
-                Console.WriteLine("4 - Удалить элемент");
-                Console.WriteLine("5 - Принудительная синхронизация");
+                Console.WriteLine("0 - Показать все элементы");
+                Console.WriteLine("1 - Добавить элемент");
+                Console.WriteLine("2 - Обновить элемент");
+                Console.WriteLine("3 - Удалить элемент");
+                Console.WriteLine("4 - Принудительная синхронизация");
+                Console.WriteLine("5 - Ручное переподключение к серверу");
+                Console.WriteLine("6 - Показать статус подключения");
+                Console.WriteLine("7 - Включить автопереподключение");
+                Console.WriteLine("8 - Отключить автопереподключение");
+                Console.WriteLine("9 - Отключить автосинхронизацию");
                 Console.WriteLine("q - Выход");
 
                 // Основной цикл
                 while (true)
                 {
                     var key = Console.ReadKey(true);
-                    
+
                     switch (key.KeyChar)
                     {
-                        case '1':
+                        case '0':
                             await ShowAllItems();
                             break;
-                        case '2':
+                        case '1':
                             await AddItem();
                             break;
-                        case '3':
+                        case '2':
                             await UpdateItem();
                             break;
-                        case '4':
+                        case '3':
                             await DeleteItem();
                             break;
-                        case '5':
+                        case '4':
                             await _syncManager.SyncWithServerAsync();
+                            break;
+                        case '5':
+                            await _syncManager.ReconnectToServerAsync();
+                            break;
+                        case '6':
+                            ShowConnectionStatus();
+                            break;
+                        case '7':
+                            _syncManager.EnableAutoReconnect();
+                            break;
+                        case '8':
+                            _syncManager.DisableAutoReconnect();
+                            break;
+                        case '9':
+                            _syncManager.DisableAutoSync();
                             break;
                         case 'q':
                         case 'Q':
@@ -99,13 +119,21 @@ namespace TestClient
             }
         }
 
+        private static void ShowConnectionStatus()
+        {
+            Console.WriteLine($"\nСтатус подключения: {(_syncManager.IsConnected ? "Подключен" : "Отключен")}");
+            Console.WriteLine($"Статус синхронизации: {(_syncManager.IsRunning ? "Активна" : "Остановлена")}");
+            Console.WriteLine($"Автопереподключение: {(_syncManager.IsAutoReconnectEnabled ? "Включено" : "Отключено")}");
+            Console.WriteLine();
+        }
+
         private static async Task AddItem()
         {
             try
             {
                 Console.Write("Введите имя элемента: ");
                 var name = Console.ReadLine();
-                
+
                 if (string.IsNullOrEmpty(name))
                 {
                     Console.WriteLine("Имя не может быть пустым");
@@ -121,7 +149,7 @@ namespace TestClient
                 };
 
                 await _localRepository.AddOrUpdateAsync(item);
-                
+
                 // Добавляем в outbox для отправки на сервер
                 await _outboxRepository.AddAsync(new Common.Models.OutboxMessage
                 {
@@ -160,7 +188,7 @@ namespace TestClient
 
                 Console.Write($"Текущее имя: {item.Name}. Введите новое имя: ");
                 var newName = Console.ReadLine();
-                
+
                 if (string.IsNullOrEmpty(newName))
                 {
                     Console.WriteLine("Имя не может быть пустым");
@@ -172,7 +200,7 @@ namespace TestClient
                 item.ModifiedBy = "Client";
 
                 await _localRepository.AddOrUpdateAsync(item);
-                
+
                 // Добавляем в outbox для отправки на сервер
                 await _outboxRepository.AddAsync(new Common.Models.OutboxMessage
                 {

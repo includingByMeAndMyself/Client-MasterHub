@@ -2,8 +2,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using TestMaster.Services;
 
-namespace TestMaster.Services
+namespace TestMaster.DependencyInjection
 {
     internal class SignalRDependencyResolver : DefaultDependencyResolver
     {
@@ -18,7 +19,6 @@ namespace TestMaster.Services
         {
             return _serviceProvider.GetService(serviceType) ?? base.GetService(serviceType);
         }
-
         public override IEnumerable<object> GetServices(Type serviceType)
         {
             return _serviceProvider.GetServices(serviceType) ?? base.GetServices(serviceType);

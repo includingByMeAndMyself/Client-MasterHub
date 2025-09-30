@@ -54,8 +54,11 @@
     <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.2.1.1\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Owin, Version=4.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Owin.4.2.2\lib\net45\Microsoft.Owin.dll</HintPath>
+    <Reference Include="Microsoft.Owin, Version=4.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.4.2.3\lib\net45\Microsoft.Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Cors, Version=4.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Cors.4.2.3\lib\net45\Microsoft.Owin.Cors.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Owin.Host.HttpListener, Version=4.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Owin.Host.HttpListener.4.2.2\lib\net45\Microsoft.Owin.Host.HttpListener.dll</HintPath>
@@ -92,6 +95,9 @@
     </Reference>
     <Reference Include="System.Security" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Web.Cors, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Cors.5.0.0\lib\net45\System.Web.Cors.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -105,10 +111,16 @@
     <Compile Include="DataAccess\OutboxMessageConfiguration.cs" />
     <Compile Include="DependencyInjection\ServiceRegister.cs" />
     <Compile Include="Extensions\ModelBuilderExtensions.cs" />
+    <Compile Include="Interfaces\IItemManagementService.cs" />
     <Compile Include="Migrations\202509271134271_InitialOutbox.cs" />
     <Compile Include="Migrations\202509271134271_InitialOutbox.Designer.cs">
       <DependentUpon>202509271134271_InitialOutbox.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202509300451228_TestForTestMaster.cs" />
+    <Compile Include="Migrations\202509300451228_TestForTestMaster.Designer.cs">
+      <DependentUpon>202509300451228_TestForTestMaster.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Services\ItemManagementService.cs" />
     <Compile Include="Services\MasterHub.cs" />
     <Compile Include="Interfaces\IItemRepository.cs" />
     <Compile Include="Interfaces\IOutboxRepository.cs" />
@@ -123,7 +135,7 @@
     <Compile Include="Repositories\MasterItemRepository.cs" />
     <Compile Include="Repositories\OutboxRepository.cs" />
     <Compile Include="Services\OutboxProcessor.cs" />
-    <Compile Include="Services\SignalRDependencyResolver.cs" />
+    <Compile Include="DependencyInjection\SignalRDependencyResolver.cs" />
     <Compile Include="Services\SignalRHostedService.cs" />
     <Compile Include="Services\SyncService.cs" />
     <Compile Include="Startup.cs" />
@@ -140,6 +152,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202509271134271_InitialOutbox.resx">
       <DependentUpon>202509271134271_InitialOutbox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509300451228_TestForTestMaster.resx">
+      <DependentUpon>202509300451228_TestForTestMaster.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

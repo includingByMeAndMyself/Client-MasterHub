@@ -21,8 +21,13 @@ namespace TestClient.Services
         private readonly int _syncInterval;
         private readonly int _reconnectInterval;
         private bool _isRunning;
+        private bool _autoReconnectEnabled;
+        private bool _autoSyncEnabled;
 
         public bool IsRunning => _isRunning;
+        public bool IsConnected => _serverProxy?.IsConnected ?? false;
+        public bool IsAutoReconnectEnabled => _autoReconnectEnabled;
+        public bool IsAutoSyncEnabled => _autoSyncEnabled;
 
         public SyncManager(
             IItemRepository localRepository,
@@ -44,6 +49,12 @@ namespace TestClient.Services
             _serverProxy.OnServerUpdate += OnServerUpdate;
             _serverProxy.OnConnected += OnServerConnected;
             _serverProxy.OnDisconnected += OnServerDisconnected;
+
+            // По умолчанию автопереподключение включено
+            _autoReconnectEnabled = true;
+
+            // По умолчанию автосинхранизация включена
+            _autoSyncEnabled = true;
         }
 
         public async Task StartAsync()
@@ -57,10 +68,26 @@ namespace TestClient.Services
             await _serverProxy.ConnectAsync();
 
             // Запускаем таймер синхронизации
-            _syncTimer.Change(0, _syncInterval);
+            if (_autoSyncEnabled)
+            {
+                _syncTimer.Change(0, _syncInterval);
+                Console.WriteLine("Автосинхранизация включена");
+            }
+            else
+            {
+                Console.WriteLine("Автосинхранизация отключена");
+            }
 
-            // Запускаем таймер переподключения
-            _reconnectTimer.Change(_reconnectInterval, _reconnectInterval);
+            // Запускаем таймер переподключения если включен
+            if (_autoReconnectEnabled)
+            {
+                _reconnectTimer.Change(_reconnectInterval, _reconnectInterval);
+                Console.WriteLine("Автопереподключение включено");
+            }
+            else
+            {
+                Console.WriteLine("Автопереподключение отключено");
+            }
         }
 
         public void Stop()
@@ -74,6 +101,66 @@ namespace TestClient.Services
             _reconnectTimer.Change(Timeout.Infinite, Timeout.Infinite);
 
             _serverProxy.Disconnect();
+        }
+
+        public async Task ReconnectToServerAsync()
+        {
+            try
+            {
+                Console.WriteLine("Попытка ручного переподключения к серверу...");
+
+                // Отключаемся от сервера если подключены
+                if (_serverProxy.IsConnected)
+                {
+                    _serverProxy.Disconnect();
+                }
+
+                // Подключаемся заново
+                var connected = await _serverProxy.ConnectAsync();
+
+                if (connected)
+                {
+                    Console.WriteLine("Ручное переподключение к серверу успешно");
+                }
+                else
+                {
+                    Console.WriteLine("Не удалось переподключиться к серверу");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка при ручном переподключении: {ex.Message}");
+            }
+        }
+
+        public void EnableAutoReconnect()
+        {
+            if (_autoReconnectEnabled) return;
+
+            _autoReconnectEnabled = true;
+            if (_isRunning)
+            {
+                _reconnectTimer.Change(_reconnectInterval, _reconnectInterval);
+            }
+            Console.WriteLine("Автопереподключение включено");
+        }
+
+        public void DisableAutoReconnect()
+        {
+            if (!_autoReconnectEnabled) return;
+
+            _autoReconnectEnabled = false;
+            _reconnectTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            Console.WriteLine("Автопереподключение отключено");
+        }
+
+        public void DisableAutoSync()
+        {
+            if (!_autoSyncEnabled) return;
+
+            _autoSyncEnabled = false;
+            _syncTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            Console.WriteLine("Автосинхранизация отключено");
         }
 
         public async Task SyncWithServerAsync()
@@ -136,9 +223,9 @@ namespace TestClient.Services
 
         private async void ReconnectTimerCallback(object state)
         {
-            if (_isRunning && !_serverProxy.IsConnected)
+            if (_isRunning && !_serverProxy.IsConnected && _autoReconnectEnabled)
             {
-                Console.WriteLine("Попытка переподключения к серверу...");
+                Console.WriteLine("Попытка автоматического переподключения к серверу...");
                 await _serverProxy.ConnectAsync();
             }
         }
@@ -146,7 +233,7 @@ namespace TestClient.Services
         private async void OnServerUpdate(List<Item> items)
         {
             Console.WriteLine($"Получено обновление с сервера: {items.Count} элементов");
-            
+
             // Обновляем локальную базу
             foreach (var item in items)
             {
@@ -167,7 +254,7 @@ namespace TestClient.Services
         private async Task ProcessOutboxMessages()
         {
             var unprocessedMessages = await _outboxRepository.GetUnprocessedAsync();
-            
+
             foreach (var message in unprocessedMessages)
             {
                 try
@@ -177,7 +264,7 @@ namespace TestClient.Services
                         var item = Newtonsoft.Json.JsonConvert.DeserializeObject<Item>(message.Data);
                         await _serverProxy.PushClientChangesAsync(new List<Item> { item });
                     }
-                    
+
                     await _outboxRepository.MarkAsProcessedAsync(message.Id);
                 }
                 catch (Exception ex)

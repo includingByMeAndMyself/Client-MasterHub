@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using TestMaster.DependencyInjection;
 using TestMaster.DataAccess;
@@ -20,10 +16,10 @@ namespace TestMaster
             
             // Регистрируем сервисы
             ServiceRegister.RegisterServices(services);
-            
+
             // Создаем провайдер сервисов
             ServiceProvider = services.BuildServiceProvider();
-            
+
             // Инициализируем базу данных
             InitializeDatabase();
         }

@@ -10,5 +10,8 @@ namespace TestMaster.Interfaces
         Task<List<Item>> GetLatestDataAsync();
         Task PushClientChangesAsync(List<Item> clientChanges);
         Task MasterUpdateAsync(Item item);
+        Task<Item> GetItemByIdAsync(int id);
+        Task<bool> DeleteItemAsync(int id);
+        Task NotifyClientsAsync();
     }
 }
