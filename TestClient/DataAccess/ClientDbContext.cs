@@ -3,6 +3,7 @@ using System.Data.Common;
 using System.Data.Entity;
 using Common.Models;
 using TestClient.Extensions;
+using TestClient.Migrations;
 
 namespace TestClient.DataAccess
 {
@@ -10,17 +11,17 @@ namespace TestClient.DataAccess
     {
         public ClientDbContext() : base("DefaultConnection")
         {
-            Database.SetInitializer(new CreateDatabaseIfNotExists<ClientDbContext>());
+            Database.SetInitializer(new MigrateDatabaseToLatestVersion<ClientDbContext, Configuration>());
         }
 
         public ClientDbContext(string connectionString) : base(connectionString)
         {
-            Database.SetInitializer(new CreateDatabaseIfNotExists<ClientDbContext>());
+            Database.SetInitializer(new MigrateDatabaseToLatestVersion<ClientDbContext, Configuration>());
         }
 
         public ClientDbContext(DbConnection connection) : base(connection, true)
         {
-            Database.SetInitializer(new CreateDatabaseIfNotExists<ClientDbContext>());
+            Database.SetInitializer(new MigrateDatabaseToLatestVersion<ClientDbContext, Configuration>());
         }
 
         public DbSet<Item> Items { get; set; }

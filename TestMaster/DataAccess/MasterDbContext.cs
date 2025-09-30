@@ -3,6 +3,7 @@ using System.Data.Common;
 using System.Data.Entity;
 using Common.Models;
 using TestMaster.Extensions;
+using TestMaster.Migrations;
 
 namespace TestMaster.DataAccess
 {
@@ -10,17 +11,17 @@ namespace TestMaster.DataAccess
     {
         public MasterDbContext() : base("DefaultConnection")
         {
-            Database.SetInitializer(new CreateDatabaseIfNotExists<MasterDbContext>());
+            Database.SetInitializer(new MigrateDatabaseToLatestVersion<MasterDbContext, Configuration>());
         }
 
         public MasterDbContext(string connectionString) : base(connectionString)
         {
-            Database.SetInitializer(new CreateDatabaseIfNotExists<MasterDbContext>());
+            Database.SetInitializer(new MigrateDatabaseToLatestVersion<MasterDbContext, Configuration>());
         }
 
         public MasterDbContext(DbConnection connection) : base(connection, true)
         {
-            Database.SetInitializer(new CreateDatabaseIfNotExists<MasterDbContext>());
+            Database.SetInitializer(new MigrateDatabaseToLatestVersion<MasterDbContext, Configuration>());
         }
 
         public DbSet<Item> Items { get; set; }
